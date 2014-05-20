@@ -1,0 +1,315 @@
+# seting up working dir
+getwd(); # get the working dir
+setwd('F:/Coursera/Math/DS/Rprog/script'); # set the working dir
+dir(); # get the list of all files in the working dir
+
+# basic data types
+vector("numeric", 10); # create a vector with 10 numeric elements initialized to 0
+numeric(10); # the equivalent to the above one
+1L + 2L; # L indicates an integer rather than a default numeric value
+1 / 0; # Inf
+Inf; #
+print(0 / 0); # NaN
+NaN; # undefined value / not a number / missing value
+s <- 1:20; # to create an integer sequence
+class(s); # get the mode of the object
+as.character(s); # explicit coercion
+c(T, F); # concatenation
+as.numeric(c("a", "b")); # NAs
+n <- c(1, 2, NaN, NA, 5);
+n;
+is.na(n);
+is.nan(n);
+names(n); # name attributes
+names(n) <- c("a", "b", "c", "d", "e");
+names(n);
+n;
+n[2:3];
+n[!is.na(n)]; # logical subsetting used to eliminate NAs
+n2 <- c(1, NA, 3, NA, 5);
+complete.cases(n, n2); # can be applied to a DF
+seq(0, 1, length = 4);
+
+
+# lists
+l <- list(1, u = c("a", "b"), T, 1 + 1i);
+l;
+names(l) <- c('w', 'x', 'y', 'z');
+l;
+l[2]; # [] always returns the same data type as the original one
+l["x"];
+l[[2]];
+l[["x"]]; # computed index can be used with [[]]
+l$x; # no computed index here, but partial matching is available
+l[c(2, 3)];
+l[[c(2, 2)]];
+l[[2]][[2]]; # same as l[[2]][2]
+
+
+# matrices
+m <- matrix(nrow = 2, ncol = 3); # create a matrix with elements initialized to NAs
+m;
+dim(m);
+attributes(m);
+m <- matrix(1:6, nrow = 2, ncol = 3); # column-wisely filled
+m;
+t(m); # transpose
+m[, 2:3];
+m[2, 3]; # one exception of [] not returning the same class
+m[2, 3, drop = F];
+m[2, , drop = F];
+dimnames(m) <- list(c("a", "b"), c("c", "d", "e"));
+m;
+m <- 1:10;
+class(m);
+dim(m) <- c(2, 5);
+m;
+class(m);
+x <- 1:3; 
+y <- 5:7;
+cbind(x, y);
+rbind(x, y);
+x <- matrix(1:4, 2, 2);
+y <- matrix(rep(10, 4), 2, 2);
+x * y; # element-wise multiplication
+x %*% y; # matrix multiplication
+diag(1:5);
+
+# factors
+f <- factor(c("yes", "yes", "no", "yes", "no"));
+f;
+table(f);
+attributes(f);
+unclass(f);
+f <- factor(c("yes", "yes", "no", "yes", "no"),
+            levels = c("yes", "no")); # set the order of lvls
+f; # the 1st lvl is the baseline lvl
+f <- gl(3, 5);
+f;
+interaction(gl(2, 5), gl(5, 2));
+d <- rnorm(1000);
+hist(d);
+cutpoints <- quantile(d, seq(0, 1, length = 4), na.rm = T);
+cutpoints;
+class(cutpoints);
+f <- cut(d, cutpoints);
+levels(f);
+
+# data frames
+df <- data.frame(foo = 1:4, bar = c(T, T, F, F));
+df;
+c(nrow(df), ncol(df));
+
+# reading / writing data
+# data <- read.table("foo.txt");
+str(file);
+
+# control structures
+x <- 5;
+y <- if (x > 3) { # a different way of using if statements
+        10;
+} else {
+        0;
+}
+y;
+
+x <- c("a", "b", "c", "d");
+seq_along(x); # 1:4
+for (i in seq_along(x)) { # equivalent to while loops
+        print(x[i]);
+}
+for (letter in x) {
+        print(letter);
+}
+#next; # continue; only can be used within loops
+#return; # exit a function
+
+# functions
+args(paste);
+x <- seq_len(20);
+above <- function(x, n = 10) {
+        idx <- x > n;
+        x[idx]; # the last statement is used as the return value
+}
+above(x);
+class(above); # function is an object
+search(); # workspace appears the 1st in the search list
+
+make.power <- function(n) { # constructor function
+        pow <- function(x) { # instead of function(x, n)
+                x ^ n;
+        }
+        pow;
+}
+cube <- make.power(3);
+square <- make.power(2);
+cube(3);
+square(3);
+ls(environment(cube)); # lexical scoping
+get("n", environment(cube));
+ 
+
+# Dates & Times
+d <- as.Date("1970-01-03");
+d;
+class(d);
+unclass(d); # dates are internally stored based on '1970-01-01'
+
+t <- Sys.time();
+t; # POSIXct format
+class(t);
+unclass(t);
+p <- as.POSIXlt(t);
+p;
+class(p);
+unclass(p);
+p$mon;
+weekdays(t);
+months(t);
+quarters(t);
+
+datestring <- c("一月 10, 2012 10:40", 
+                "十二月 09, 2011 09:10");
+datestring;
+x <- strptime(datestring, "%B %d, %Y %H:%M");
+x;
+class(x);
+?strptime;
+Sys.setlocale("LC_TIME", "English United States"); # to english dates
+
+t1 <- as.POSIXlt("2012-01-01");
+t1;
+t2 <- as.POSIXlt("2013-01-01");
+t2;
+t2 - t1;
+t1 <- as.POSIXct("2012-10-25 01:00:00");
+t2 <- as.POSIXct("2012-10-27 08:00:00");
+t2 - t1;
+
+# *apply functions
+lapply; # applys a function to a list and returns a list
+lapply(list(a = 1:5, b = 1:10), mean);
+lapply(1:4, runif, min = 0, max = 10); # ... args
+x <- list(a = matrix(1:4, 2, 2), 
+          b = matrix(1:6, 3, 2));
+x;
+lapply(x, function(elt) elt[1, ]); # anonymous function
+sapply; # simplifies the result from lapply
+sapply(list(a = 1:5, b = 1:10), mean);
+sapply(x, function(elt) elt[1, ]); 
+
+apply; # apply to an array
+m <- matrix(1:20, 5, 4);
+apply(m, 1, mean);
+apply(m, 2, sum);
+rowMeans(m); # optimized
+colSums(m);
+a <- array(rnorm(2 * 3 * 5), c(2, 3, 5));
+a;
+apply(a, c(1, 2), mean);
+rowMeans(a, dims = 2);
+
+tapply; # apply over subsets of a vector
+tapply(1:30, gl(3, 10), mean);
+tapply(1:30, gl(3, 10), mean, simplify = F);
+tapply(1:30, gl(3, 10), range);
+
+split; # split vector/list/df with factors
+s <- split(1:30, gl(3, 10)); 
+s;
+lapply(s, mean);
+
+library(datasets);
+head(airquality);
+str(airquality);
+s <- split(airquality, airquality$Month);
+s;
+str(s);
+lapply(s, function(x) colMeans(x[, c("Ozone", "Wind")]));
+sapply(s, function(x) colMeans(x[, c("Ozone", "Wind")]));
+sapply(s, function(x) 
+        colMeans(x[, c("Ozone", "Wind")], na.rm = T));
+mf <- interaction(gl(2, 5), gl(5, 2));
+str(split(1:10, mf));
+str(split(1:10, mf, drop = T));
+
+mapply; # return a list
+mapply(rep, 1:4, 4:1);
+mapply(rep, 1:4, 5);
+?mapply;
+
+str; # compactly display the internal structure of an object
+str(str);
+str(lm);
+str(1:10);
+str(gl(3, 6));
+
+
+# simulation
+rnorm(5);
+dnorm(c(-1, 0, 1));        
+pnorm(c(-1, 0, 1));
+qnorm(c(0.1, 0.5, 0.9));
+set.seed(1); # for reproducibility
+rpois(5, 2);
+ppois(6, 2); # Pr(x <= 6)
+rbinom(5, size = 1, prob = 0.5);
+
+set.seed(20);
+x <- rnorm(100);
+e <- rnorm(100, 0, 2);
+y <- 0.5 + 2 * x + e;
+summary(y);
+plot(x, y);
+
+sample(letters, 5);
+sample(1:10); # permutation
+sample(1:10, replace = T);
+
+# profiler 
+system.time(readLines("http://www.baidu.com"));
+system.time({
+        n <- 1000;
+        for(i in 1:n) {
+                rnorm(n, i);
+        }
+})
+
+Rprof;
+summaryRprof;
+
+
+# caching
+
+makeVector <- function(x = numeric()) {
+        m <- NULL
+        set <- function(y) {
+                x <<- y
+                m <<- NULL
+        }
+        get <- function() x
+        setmean <- function(mean) m <<- mean
+        getmean <- function() m
+        list(set = set, get = get,
+             setmean = setmean,
+             getmean = getmean)
+}
+
+
+
+cachemean <- function(x, ...) {
+        m <- x$getmean()
+        if(!is.null(m)) {
+                message("getting cached data")
+                return(m)
+        }
+        data <- x$get()
+        m <- mean(data, ...)
+        x$setmean(m)
+        m
+}
+
+
+
+
+
