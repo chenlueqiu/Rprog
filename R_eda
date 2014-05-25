@@ -1,0 +1,305 @@
+# seting up working dir
+getwd(); # get the working dir
+setwd('F:/Coursera/Math/DS/EDA/script'); # set the working dir
+dir(); # get the list of all files in the working dir
+
+#############################################
+### basic plotting system
+#############################################
+
+plot(rnorm(100), rnorm(100));
+library(datasets);
+head(airquality);
+str(airquality);
+hist(airquality$Ozone); # histogram
+with(airquality, plot(Wind, Ozone)); # scatter-plot
+title(main = "Ozone ~ Wind in NY"); # add a title
+text(2, 2, "text");
+legend("topright", legend = "legend", pch = 1);
+with(airquality, 
+     plot(Wind, Ozone, main = "Ozone ~ Wind in NY", pch = 20));
+model <- lm(Ozone ~ Wind, airquality);
+abline(model, lwd = 2);
+with(subset(airquality, Month == 5),
+     points(Wind, Ozone, col = 'blue'));
+
+with(airquality, 
+     plot(Wind, Ozone, main = "Ozone ~ Wind in NY", type = 'n')); # data missing
+with(subset(airquality, Month == 5),
+     points(Wind, Ozone, col = 'blue'));
+with(subset(airquality, Month != 5),
+     points(Wind, Ozone, col = 'red'));
+legend("topright", pch = 1, col = c("blue", "red"), 
+       legend = c("May", "Other Months"));
+
+par(mfrow = c(1, 3), mar = c(4, 4, 2, 1), oma = c(0, 0, 2, 0));
+with(airquality, {
+        plot(Wind, Ozone, main = "Ozone and Wind");
+        plot(Solar.R, Ozone, main = "Ozone and Solar");
+        plot(Temp, Ozone, main = "Ozone and Temp");
+        mtext("Ozone and Weather in NY", outer = T);
+})
+
+par(mfrow = c(1, 1));
+airquality <- transform(airquality, Month = factor(Month));
+str(airquality);
+boxplot(Ozone ~ Month, airquality,
+        xlab = "Month", ylab = "Ozone (ppb)");
+
+# pch (plotting character) / lty / lwd / col / xlab / ylab
+colors(); # show all color characters
+example(points); # pch
+
+par(); # show global graphics parameters
+# las (orientation of the axis labels) / bg / mar (margin size) /
+# oma (outer margin size) / mfrow / mfcol
+par("lty");
+par("col");
+par("pch");
+par("bg");
+par("mar"); # bottom first / clockwise
+par("mfrow");
+ 
+# plot / lines / points / text / title / mtext (margins) / axis
+
+?Devices;
+#pdf; #png;
+#dev.off();
+dev.cur(); # the currently active GD
+dev.set(2); # set the cur GB
+#dev.copy; dev.off()
+
+
+#############################################
+### Lattice plotting system
+#############################################
+
+# xyplot / bwplot / histogram / stripplot / 
+# dotplot / splom / levelplot / contourplot
+
+library(lattice);
+library(datasets);
+g <- xyplot(Ozone ~ Wind, data = airquality); # return an object of class trellis
+print(g); # print the trellis object to the GD
+xyplot(Ozone ~ Wind, data = airquality); #  autoprintint
+
+airquality <- transform(airquality, Month = factor(Month));
+xyplot(Ozone ~ Wind | Month, data = airquality, layout = c(5, 1));
+
+set.seed(10);
+x <- rnorm(100);
+f <- rep(0:1, each = 50);
+y <- x + f - f * x + rnorm(100, sd = 0.5);
+f <- factor(f, labels = c("grp 1", "grp 2"));
+xyplot(y ~ x | f, layout = c(2, 1));
+
+xyplot(y ~ x | f, panel = function(x, y, ...){
+        panel.xyplot(x, y, ...);
+        panel.abline(h = median(y), lty = 2);
+        panel.lmline(x, y, col = 2);
+}) # customized panel function
+
+
+
+
+#############################################
+### ggplot2 system
+#############################################
+
+install.packages("ggplot2");
+library(ggplot2);
+
+head(mpg); # a dataset from ggplot2
+qplot(displ, hwy, data = mpg);
+qplot(displ, hwy, data = mpg, 
+      color = drv); # colors assignned automatically as well as the legend
+qplot(displ, hwy, data = mpg, 
+      geom = c("point", "smooth")); # "smooth" with default 95% CI added to geom
+qplot(displ, hwy, data = mpg, 
+      geom = c("point", "smooth"), method = "lm"); 
+
+qplot(hwy, data = mpg, 
+      fill = drv); # histogram made by specifying only one var
+qplot(hwy, data = mpg,
+      geom = "density", color = drv);
+
+qplot(displ, hwy, data = mpg,
+      facets = .~drv); # seperate by drv into 3 columns
+qplot(hwy, data = mpg, facets = drv~., 
+      binwidth = 2); # seperate by drv into 3 rows
+
+g <- ggplot(mpg, aes(displ, hwy)); # 
+summary(g);
+p <- g + geom_point(); # add geom 
+print(p);
+g + geom_point(); # auto-printing
+g + geom_point() + theme_bw(base_family = "Times"); # black&white theme and Times font
+g + geom_point() + geom_smooth(); # another layer added
+g + geom_point() + geom_smooth(method = "lm"); 
+g + geom_point() + geom_smooth(method = "lm", size = 4, linetype = 3,
+                               se = F); # CI set to FALSE
+g + geom_point() + geom_smooth(method = "lm") + facet_grid(.~drv);
+g + geom_point(color = "steelblue", size = 4, alpha = 0.5);
+g + geom_point(color = aes(color = drv), size = 4, alpha = 0.5);
+g + geom_point(aes(color = drv)) + labs(title = "scatter plot") +
+        labs(x = expression("Dispel" + Try[8.0]), y = "HWY");
+
+
+#############################################
+### hierarchical / k-means clustering 
+#############################################
+
+set.seed(1234);
+par(mar = c(0, 0, 0, 0));
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.1);
+y <- rnorm(12, mean = rep(c(1, 2, 1), each = 4), sd = 0.1);
+plot(x, y, col = "blue", pch = 19, cex = 1.5);
+text(x + 0.05, y + 0.05, labels = as.character(1:12));
+df <- data.frame(x = x, y = y);
+df;
+distxy <- dist(df);
+distxy;
+
+#hierarchical clustering
+hClustering <- hclust(distxy); # euclidean distance as default
+hClustering;
+par(mar = c(5, 4, 4, 2));
+plot(hClustering);        
+
+#heat map
+set.seed(143);
+dataMat <- as.matrix(df)[sample(1:12), ]
+heatmap(dataMat);
+class(heatmap(dataMat));
+print(heatmap(dataMat)); # useful indices
+
+# k-means clustering
+kmeansObj <- kmeans(df, centers = 3);
+kmeansObj;
+class(kmeansObj);
+names(kmeansObj);
+kmeansObj$cluster;
+kmeansObj$size;
+kmeansObj$centers;
+par(mar = rep(0.2, 4));
+plot(x, y, col = kmeansObj$cluster, 
+     pch = 19, cex = 1.5);
+points(kmeansObj$centers, col = 1:3,
+       pch = 3, cex = 2, lwd = 3);
+
+#
+kmeansObj2 <- kmeans(dataMat, centers = 3);
+par(mfrow = c(1, 2), mar = c(2, 4, 0.1, 0.1));
+image(t(dataMat)[, nrow(dataMat):1], 
+      yaxt = 'n');
+image(t(dataMat)[, order(kmeansObj2$cluster)],
+      yaxt = 'n');
+
+
+#############################################
+### PCA / SVD
+#############################################
+
+# PCA
+
+data(iris);
+head(iris);
+str(iris);
+# log transform 
+log.ir <- log(iris[, 1:4]);
+ir.species <- iris[, 5];
+
+# apply PCA - scale. = TRUE is highly 
+# advisable, but default is FALSE. 
+ir.pca <- prcomp(log.ir,
+                 center = TRUE,
+                 scale. = TRUE);
+class(ir.pca);
+print(ir.pca); # sd of each PC and coefficients of each PC
+plot(ir.pca, type = "l"); # variance of each PC
+summary(ir.pca);
+predict(ir.pca, newdata = tail(log.ir, 2));
+
+# SVD for PCA
+# the code below is not executable and is for later reference only
+# tux <- volcano;
+# str(tux);
+# plot(tux)
+# reduce <- function(A,dim) {
+#         #Calculates the SVD
+#         sing <- svd(A)
+#         
+#         #Approximate each result of SVD with the given dimension
+#         u<-as.matrix(sing$u[, 1:dim])
+#         v<-as.matrix(sing$v[, 1:dim])
+#         d<-as.matrix(diag(sing$d)[1:dim, 1:dim])
+#         
+#         #Create the new approximated matrix
+#         return(imagematrix(u%*%d%*%t(v),type='grey'))
+# }
+# tux_d <- svd(tux)
+# length(tux_d$d)
+# plot(reduce(tux,1))
+# plot(reduce(tux,35))
+# 
+# plot(svd1$d^2/sum(svd1$d^2), pch = 19, 
+#      xlab = "Singular vector", ylab = "Variance explained");
+
+
+#############################################
+### color in R
+#############################################
+
+colors();
+class(colors());
+
+pal <- colorRamp(c("red", "blue"));
+class(pal);
+pal(0); # RGB in order
+pal(1);
+pal(0.5);
+pal(seq(0, 1, len = 10));
+
+pal <- colorRampPalette(c("red", "yellow"));
+pal(2);
+pal(10);
+
+class(volcano);
+dim(volcano);
+if (!require("RColorBrewer")) {
+        install.packages("RColorBrewer");
+        library(RColorBrewer);
+}
+?brewer.pal;
+cols <- brewer.pal(3, "BuGn");
+cols;
+pal <- colorRampPalette(cols);
+image(volcano, col = pal(20));
+
+x <- rnorm(10000);
+y <- rnorm(10000);
+smoothScatter(x, y);
+rgb(0, 1, 1, 0.8);
+plot(x, y, col = rgb(0, 0, 0, 0.05), pch = 19); # clarify plot with many points
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
